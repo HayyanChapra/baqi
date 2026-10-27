@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Baqi: pick your dinner before the day ends</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F3E6D3;--ink:#3E2418;--acc:#C4572F;--gold:#D9A441;--pis:#A9C46C;--card:#FBF3E6;--line:#3e24182e;--mut:#6b4a3a;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#22130e;--ink:#F3E6D3;--card:#2f1c15;--line:#f3e6d33a;--mut:#d3b9a4;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#22130e;--ink:#F3E6D3;--card:#2f1c15;--line:#f3e6d33a;--mut:#d3b9a4;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 "DM Sans",system-ui,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;line-height:1.1;margin:0 0 .5em}
+h1{font-size:clamp(2.2rem,7vw,4rem);font-weight:900;letter-spacing:-.02em}
+h2{font-size:clamp(1.6rem,4.5vw,2.4rem);font-weight:700}
+h3{font-size:1.25rem;font-weight:700;margin-bottom:.2em}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:11;background:var(--bg);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 18px}
+.logo{font:900 1.9rem Fraunces,Georgia,serif;text-decoration:none;letter-spacing:-.03em}
+.logo i{color:var(--acc);font-style:normal}
+nav{display:flex;gap:4px;margin-left:auto;overflow-x:auto}
+nav a{padding:6px 11px;border-radius:99px;text-decoration:none;font-weight:500;white-space:nowrap}
+nav a.on{background:var(--ink);color:var(--bg)}
+#th{background:none;border:1px solid var(--line);color:var(--ink);border-radius:99px;width:36px;height:36px;font-size:1rem;cursor:pointer}
+main{max-width:1000px;margin:0 auto;padding:0 18px 60px}
+section{display:none}section.show{display:block}
+.btn{display:inline-block;background:var(--acc);color:#fff;font:700 1rem "DM Sans",sans-serif;padding:12px 22px;border-radius:99px;border:0;text-decoration:none;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}.btn.ghost{background:none;color:var(--ink);border:2px solid var(--ink)}
+.sky{height:min(46vw,310px);margin:18px 0 0;border-radius:26px 26px 0 0;overflow:hidden;--p:.4;background:linear-gradient(180deg,color-mix(in srgb,#F7D9A6 calc(100% * (1 - var(--p))),#3A2147),color-mix(in srgb,#F0A35E calc(100% * (1 - var(--p))),#B5503A))}
+.sky svg{width:100%;height:100%;display:block}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:0 0 26px 26px;padding:26px 24px 28px;margin-bottom:34px}
+.panel p{max-width:56ch;color:var(--mut)}
+.slide{display:block;margin:18px 0 6px;font-weight:700}
+.slide output{font:700 1.5rem Fraunces,serif;color:var(--acc);margin-left:8px}
+input[type=range]{width:100%;accent-color:var(--acc);height:34px}
+.left{margin:4px 0 16px;font-weight:700}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:10px 0 30px;padding:0;list-style:none;counter-reset:s}
+.steps li{counter-increment:s;border-left:4px solid var(--gold);padding:4px 0 4px 16px}
+.steps li::before{content:counter(s);font:900 2rem Fraunces,serif;color:var(--acc);display:block}
+.count{font:900 clamp(2.4rem,9vw,4.5rem) Fraunces,serif;color:var(--acc);line-height:1}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.chip{background:none;border:2px solid var(--ink);color:var(--ink);border-radius:99px;padding:6px 16px;font:500 .95rem "DM Sans",sans-serif;cursor:pointer}
+.chip.on{background:var(--ink);color:var(--bg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-top:16px}
+.meal{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:6px;position:relative}
+.meal .em{font-size:2.6rem;line-height:1}
+.meal small{color:var(--mut)}
+.price{font:900 1.7rem Fraunces,serif}.price s{font:400 1rem "DM Sans",sans-serif;color:var(--mut);margin-left:6px}
+.badge{position:absolute;top:14px;right:14px;background:var(--gold);color:#3E2418;font-weight:700;border-radius:99px;padding:2px 11px;font-size:.9rem}
+.tag{align-self:flex-start;background:var(--pis);color:#3E2418;font-weight:700;border-radius:99px;padding:1px 11px;font-size:.88rem}
+.tag.hot{background:var(--acc);color:#fff}
+.meal.gone{opacity:.55}.meal.gone .tag{background:var(--line);color:var(--ink)}
+.meal .btn{margin-top:auto;text-align:center}
+.timebar{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px 18px 10px;margin-top:14px}
+.form{display:grid;gap:12px;max-width:520px}
+label.f{display:grid;gap:4px;font-weight:700}
+input[type=text],select,textarea{font:inherit;padding:11px 13px;border-radius:12px;border:1.5px solid var(--ink);background:var(--card);color:var(--ink)}
+.ticket{background:var(--card);border:2px dashed var(--acc);border-radius:20px;padding:22px;max-width:480px;margin-top:20px}
+.ticket .code{font:900 2.6rem Fraunces,serif;color:var(--acc);letter-spacing:.04em}
+.note{color:var(--mut);font-size:.92rem}
+.vals{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.vals div{background:var(--card);border-radius:18px;padding:18px;border:1px solid var(--line)}
+footer{border-top:1px solid var(--line);padding:22px 18px;text-align:center;color:var(--mut);font-size:.9rem}
+.pg{padding-top:34px}
+.form,.card{width:100%}input[type=text],select,textarea{width:100%;min-width:0}label.f,.row>label{min-width:0}.card{min-width:0}
+@keyframes up{from{opacity:0;transform:translateY(22px)}}.panel h1 span{display:inline-block;animation:up .8s cubic-bezier(.2,.9,.3,1) both}.panel h1 span:nth-child(2){animation-delay:.12s}.panel h1 span:nth-child(3){animation-delay:.24s}.panel h1 span:nth-child(4){animation-delay:.36s}
+.cl{animation:cd 38s ease-in-out infinite alternate}.c2{animation-duration:52s;animation-direction:alternate-reverse}@keyframes cd{to{transform:translateX(90px)}}
+#glow{animation:pl 4s ease-in-out infinite}@keyframes pl{50%{opacity:.5}}
+.mapwrap{display:grid;grid-template-columns:270px 1fr;gap:14px;margin-top:16px}.mlist{display:grid;gap:8px;align-content:start;max-height:360px;overflow:auto}
+.mb{display:flex;gap:9px;align-items:center;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:14px;padding:9px 12px;font:500 .92rem "DM Sans",sans-serif;cursor:pointer;animation:up .5s both;animation-delay:calc(var(--i)*60ms)}
+.mb.sel{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}.dot{flex:none;width:10px;height:10px;border-radius:50%;background:#8a7a70}.mb.on .dot{background:var(--acc);animation:pl 1.6s infinite}
+.mv{position:relative;height:380px;overflow:hidden;border-radius:20px;border:1px solid var(--line);background:repeating-linear-gradient(0deg,var(--line) 0 1px,transparent 1px 40px),repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 40px),var(--card)}
+.mv img{position:absolute;width:256px;height:256px;max-width:none;user-select:none}.mv .at{position:absolute;right:6px;bottom:4px;font-size:11px;background:#fffc;color:#222;padding:1px 6px;border-radius:6px}
+.nt{position:absolute;left:8px;top:8px;right:8px;background:var(--card);color:var(--ink);border-radius:10px;padding:6px 10px;font-size:.85rem;border:1px solid var(--line);z-index:5}
+.lbl{position:absolute;transform:translate(-50%,-50%);background:#3E2418;color:#F3E6D3;font:700 12px "DM Sans",sans-serif;padding:3px 9px;border-radius:99px;pointer-events:none;white-space:nowrap}
+.mpin{position:absolute;transform:translate(-50%,-100%);border:0;background:none;padding:0;cursor:pointer;filter:drop-shadow(0 2px 3px #0006)}.mpin span{display:grid;place-items:center;width:38px;height:38px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#7d6f66;border:2px solid #fff}.mpin span i{transform:rotate(45deg);font-style:normal;font-size:1.1rem}.mpin.on span{background:#C4572F}.mpin.sel{z-index:3;transform:translate(-50%,-100%) scale(1.3)}
+@keyframes pd{from{opacity:0;margin-top:-70px}}.mv.go .mpin{animation:pd .6s cubic-bezier(.3,1.4,.5,1) both;animation-delay:calc(var(--i)*90ms)}
+#mf{width:100%;height:360px;border:1px solid var(--line);border-radius:20px;background:var(--card)}
+@media(max-width:700px){.mapwrap{grid-template-columns:1fr}.mlist{grid-auto-flow:column;grid-auto-columns:max-content;overflow-x:auto}}
+.logo svg{height:40px;width:auto;display:block}.lg [fill="#3E2418"]{fill:var(--ink)}.lg [stroke="#3E2418"]{stroke:var(--ink)}
+.ticket{animation:pop .5s ease-out}@keyframes pop{from{transform:scale(.92);opacity:0}}
+.card{display:grid;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;max-width:480px}.card input[readonly]{opacity:.85}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#st circle{animation:tw 3s ease-in-out infinite}#st circle:nth-child(2n){animation-delay:1s}#st circle:nth-child(3n){animation-delay:2s}@keyframes tw{50%{opacity:.25}}
+.panel .btn.ghost{margin-left:10px}
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin:8px 0}summary{font-weight:700;cursor:pointer}details p{margin:8px 0 0;color:var(--mut)}
+h2.sp{margin-top:46px}
+.btn{transition:transform .15s,filter .15s}.btn:hover{transform:translateY(-2px)}.btn:active{transform:scale(.96)}
+.meal{transition:transform .2s,box-shadow .2s}.meal:hover{transform:translateY(-4px);box-shadow:0 12px 24px #3e24182a}
+@keyframes in{from{opacity:0;transform:translateY(16px)}}section.show{animation:in .45s ease-out}
+@keyframes rise{from{opacity:0;transform:translateY(26px) scale(.96)}}.grid.in .meal{animation:rise .5s cubic-bezier(.2,.9,.3,1) both;animation-delay:calc(var(--i)*70ms)}
+@keyframes lift{to{transform:translateY(-14px) scale(1.05);opacity:0;box-shadow:0 18px 30px #0004}}.meal.lift,.grid.in .meal.lift{animation:lift .38s ease-in forwards}
+@keyframes land{from{transform:translateY(60px) scale(.88);opacity:0}60%{transform:translateY(-6px) scale(1.02)}}.meal.pick{animation:land .6s cubic-bezier(.2,.9,.3,1)}
+@keyframes fl{50%{filter:brightness(1.4) saturate(1.3)}}.sky.flash{animation:fl .5s}
+@keyframes sp{to{transform:rotate(360deg)}}.btn.spin::after{content:"";display:inline-block;width:.9em;height:.9em;margin-left:8px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px}
+.ckc{stroke-dasharray:151;stroke-dashoffset:151;animation:dr .7s .1s forwards}.ckp{stroke-dasharray:40;stroke-dashoffset:40;animation:dr .4s .6s forwards}@keyframes dr{to{stroke-dashoffset:0}}
+.rv{opacity:0;transform:translateY(18px);transition:opacity .6s,transform .6s}.rv.vis{opacity:1;transform:none}.steps li:nth-child(2){transition-delay:.12s}.steps li:nth-child(3){transition-delay:.24s}.steps li:nth-child(4){transition-delay:.36s}.vals div:nth-child(2){transition-delay:.12s}.vals div:nth-child(3){transition-delay:.24s}
+.mp{width:100%;height:auto;display:block;border-radius:20px;border:1px solid var(--line)}.mp text{fill:var(--ink);font-family:"DM Sans",sans-serif}.pin{cursor:pointer}.pin.off .pb{opacity:.6}.pin.sel .pb{transform:scale(1.25)}
+@keyframes drop{from{transform:translateY(-70px);opacity:0}}.mp.go .pb{animation:drop .6s cubic-bezier(.3,1.4,.5,1) both;animation-delay:calc(var(--i)*90ms)}
+#mi{margin-top:10px;min-height:1.6em}#mi .btn{margin-left:10px;padding:6px 16px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}.rv{opacity:1!important;transform:none!important;transition:none!important}}
+</style></head><body>
+<header><a class="logo" href="#/" id="logo" aria-label="Baqi home"><svg class="wm lg" role="img" aria-label="Baqi" xmlns="http://www.w3.org/2000/svg" viewBox="56 127 786 458"><g transform="translate(66.0,170)"><g data-glyph="b"><rect x="0" y="2" width="70" height="298" fill="#3E2418"/><circle cx="35.0" cy="2" r="35.0" fill="#3E2418"/><circle cx="110.0" cy="190" r="75" fill="none" stroke="#3E2418" stroke-width="70"/></g><g data-glyph="a"><circle cx="342.0" cy="190" r="75" fill="none" stroke="#3E2418" stroke-width="70"/><rect x="382.0" y="115.0" width="70" height="185.0" fill="#3E2418"/><circle cx="417.0" cy="115.0" r="35.0" fill="#3E2418"/></g><g data-glyph="q"><circle cx="574.0" cy="190" r="75" fill="none" stroke="#3E2418" stroke-width="70"/><rect x="614.0" y="115.0" width="70" height="254.60000000000002" fill="#3E2418"/><circle cx="649.0" cy="115.0" r="35.0" fill="#3E2418"/><circle cx="649.0" cy="369.6" r="35.0" fill="#3E2418"/></g><g data-glyph="i"><rect x="696.0" y="115.0" width="70" height="185.0" fill="#3E2418"/><circle cx="731.0" cy="115.0" r="35.0" fill="#3E2418"/><circle cx="731.0" cy="20" r="40" fill="#D9A441"/></g></g></svg></a>
+<nav id="nav"><a href="#/">Home</a><a href="#/meals">Meals</a><a href="#/about">About</a><a href="#/reserve">Reserve</a><a href="#/contact">Contact</a></nav>
+<button id="th" aria-label="Switch light or dark theme">◐</button></header>
+<main>
+<section data-p="/">
+<div class="sky" id="sky"><svg viewBox="0 0 800 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+<g id="st" fill="#F3E6D3"><circle cx="90" cy="40" r="2"/><circle cx="210" cy="80" r="1.6"/><circle cx="330" cy="30" r="2"/><circle cx="560" cy="55" r="2"/><circle cx="690" cy="90" r="1.6"/><circle cx="740" cy="30" r="2"/></g>
+<circle id="glow" cx="400" cy="90" r="96" fill="#D9A441" opacity=".3"/><circle id="sun" cx="400" cy="90" r="52" fill="#D9A441"/>
+<g class="cl"><ellipse cx="160" cy="70" rx="46" ry="12" fill="#F3E6D3" opacity=".55"/><ellipse cx="192" cy="61" rx="30" ry="10" fill="#F3E6D3" opacity=".55"/></g><g class="cl c2"><ellipse cx="610" cy="112" rx="52" ry="13" fill="#F3E6D3" opacity=".45"/></g>
+<path id="d1" d="M-40 230 Q150 170 300 225 T600 215 T840 205 V300H-40Z" fill="#C4572F"/>
+<path id="d2" d="M-40 262 Q200 215 400 258 T840 245 V300H-40Z" fill="#3E2418"/></svg></div>
+<div class="panel">
+<h1><span>The kitchen</span> <span>is closing.</span> <span>Your dinner</span> <span>isn’t gone yet.</span></h1>
+<p>Around UOWD, good kitchens end the night with food they can’t sell. Baqi lets you choose the exact plate, pay about half, and collect it on your way home.</p>
+<label class="slide" for="sl">Drag the sun, move the evening<output id="clk"></output></label>
+<input id="sl" type="range" min="16" max="22.5" step=".25" value="19"><button class="btn ghost" id="pl" type="button" style="margin:6px 0 0">Play the evening</button>
+<p class="left" id="left"></p>
+<a class="btn" href="#/meals" id="seeBtn">See what is left</a></div>
+<h2>How Baqi works</h2>
+<ol class="steps"><li><h3>See what is still warm</h3>Every dish left tonight, with its price and the window to collect it.</li><li><h3>Pick your plate</h3>No mystery boxes and no lucky dips. You choose the dish you actually want.</li><li><h3>Pay, show, eat</h3>Pay in the app, show your pickup code at the counter and take dinner home.</li></ol>
+<h2 class="sp">Still on the board at this time</h2><p class="note">These three change as the sun moves.</p><div class="grid" id="feat"></div><p><a class="btn ghost" href="#/meals">See all meals</a></p>
+<h2 class="sp">Who wins when a meal is rescued</h2>
+<div class="vals"><div><h3>Students</h3>Dinner for about half the price, picked by you and collected on the way home.</div><div><h3>Restaurants and bakeries</h3>Closing-time food becomes revenue instead of waste, and nobody has to arrange a delivery.</div><div><h3>The city</h3>Good food stays out of the bin, in a country that has set a food waste target for 2030.</div></div>
+<h2 class="sp">A night on Baqi</h2>
+<ol class="steps"><li><h3>Late afternoon</h3>A bakery spots the trays it won’t sell and lists them.</li><li><h3>Early evening</h3>Students open Baqi between lectures and claim their favourites.</li><li><h3>Pickup window</h3>A code, a quick hello, and a warm bag changes hands.</li><li><h3>Closing time</h3>Whatever remains follows the pickup rules.</li></ol>
+<p class="note">Example only. Final pickup and refund rules are still being decided.</p>
+<div class="panel" style="border-radius:26px;margin-top:34px"><h2>An idea we are testing: the campus pass</h2><p>A monthly pass for the students who collect most nights. There is no price yet. Our survey will tell us whether anyone wants it.</p></div>
+<h2 class="sp">Before you ask</h2>
+<details><summary>Do I pay in the app?</summary><p>Yes. You pay in the app when you reserve. In this prototype the payment page is a demo and no money moves.</p></details>
+<details><summary>Are these real restaurants?</summary><p>No. The map is real, but every kitchen and dish on Baqi is imaginary, made for a class project.</p></details>
+<details><summary>What if I cannot make my pickup?</summary><p>Contact support and they will guide you. You can reach them from the <a href="#/contact">Contact page</a>.</p></details>
+<details><summary>Why is there no surprise box?</summary><p>Baqi shows you the actual dish before you reserve it. No lucky dip.</p></details>
+<div style="text-align:center;margin:46px 0 0"><h2>The kitchens are closing. Hungry?</h2><a class="btn" href="#/meals">Find a meal</a></div>
+<p class="note" style="text-align:center;margin-top:30px">Meals rescued in this demo so far</p><div class="count" id="cnt" style="text-align:center">0</div>
+</section>
+
+<section data-p="/meals" class="pg">
+<h2>Tonight’s meals</h2><p class="note">Imaginary kitchens on a real map around UOWD. Prices assume roughly half off the menu.</p>
+<div class="timebar"><label class="slide" for="sl2">Time now<output id="clk2"></output></label><input id="sl2" type="range" min="16" max="22.5" step=".25" value="19"></div>
+<div id="map" class="mapwrap"><div class="mlist" id="ml"></div><div id="mv" class="mv" role="img" aria-label="Map around UOWD with imaginary restaurants"></div></div><div id="mi" role="status"></div><p class="note">The map is real. The restaurants are imaginary. The map tiles need an internet connection.</p>
+<div class="chips" id="chips"></div><div class="grid" id="grid"></div>
+</section>
+
+<section data-p="/about" class="pg">
+<div style="max-width:320px;margin:0 0 10px"><svg class="lg" role="img" aria-label="Baqi logo with paper bag" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 978 760"><g transform="translate(120,330)"><g data-glyph="b"><rect x="0" y="2" width="70" height="298" fill="#3E2418"/><circle cx="35.0" cy="2" r="35.0" fill="#3E2418"/><circle cx="110.0" cy="190" r="75" fill="none" stroke="#3E2418" stroke-width="70"/></g><g data-glyph="a"><circle cx="342.0" cy="190" r="75" fill="none" stroke="#3E2418" stroke-width="70"/><rect x="382.0" y="115.0" width="70" height="185.0" fill="#3E2418"/><circle cx="417.0" cy="115.0" r="35.0" fill="#3E2418"/></g><g data-glyph="q"><circle cx="574.0" cy="190" r="75" fill="none" stroke="#3E2418" stroke-width="70"/><rect x="614.0" y="115.0" width="70" height="254.60000000000002" fill="#3E2418"/><circle cx="649.0" cy="115.0" r="35.0" fill="#3E2418"/><circle cx="649.0" cy="369.6" r="35.0" fill="#3E2418"/></g><g data-glyph="i"><rect x="696.0" y="115.0" width="70" height="185.0" fill="#3E2418"/><circle cx="731.0" cy="115.0" r="35.0" fill="#3E2418"/><circle cx="731.0" cy="20" r="40" fill="#D9A441"/></g><g transform="matrix(0.49726,-0.05226,0.05226,0.49726,-44.953,-190.786)"><g><g stroke="#3E2418" stroke-width="16" stroke-linejoin="round" stroke-linecap="round">
+<polygon points="270,250 205,262 158,612 232,652" fill="#C4572F"/>
+<polygon points="270,250 612,250 662,652 232,652" fill="#C4572F"/>
+<line x1="232" y1="652" x2="270" y2="590" fill="none"/>
+<polygon points="662,652 610,596 610,652" fill="#C4572F"/>
+<rect x="244" y="138" width="400" height="120" rx="44" fill="#C4572F"/>
+<ellipse cx="256" cy="198" rx="28" ry="60" fill="#D9A441"/>
+<circle cx="400" cy="440" r="20" fill="#3E2418" stroke="none"/>
+<circle cx="520" cy="440" r="20" fill="#3E2418" stroke="none"/>
+<path d="M425 500 Q460 534 495 500" fill="none" stroke-width="14"/></g></g></g></g></svg></div><h2>Why Baqi exists</h2>
+<p style="max-width:60ch">Every evening, kitchens across Dubai close with perfectly good food left on the counter, while students a few streets away skip dinner or settle for whatever is cheapest. Baqi connects the two, and lets students choose the plate they actually want instead of a mystery box.</p>
+<div class="vals"><div><h3>Mission</h3>Make good food affordable for students by giving surplus meals a second chance.</div><div><h3>Vision</h3>Every campus in the UAE eats well and wastes nothing.</div><div><h3>Values</h3>Choice, fairness to restaurants, and zero waste.</div></div>
+<p class="note">Wording is a placeholder and will be replaced by the team’s final text.</p>
+</section>
+
+<section data-p="/reserve" class="pg"><div id="rs"></div></section>
+<section data-p="/pay" class="pg"><div id="py"></div></section>
+
+<section data-p="/contact" class="pg">
+<h2>Talk to us</h2><p>Run a kitchen with food left at closing? Want Baqi on your campus? Write to us.</p>
+<div class="form"><label class="f">Your name<input type="text" id="cn"></label>
+<label class="f">Message<textarea id="cm" rows="4"></textarea></label>
+<button class="btn" id="cs">Send message</button><p class="note" id="co" role="status"></p></div>
+<p class="note">Prototype: nothing is actually sent. Pickup points and contact details are to be confirmed.</p>
+</section>
+</main>
+<footer>Baqi is a BUS201 class project. The map is real. Every restaurant on it is imaginary.</footer>
+<script>
+const M=[
+{id:1,e:"🥙",n:"Lamb shawarma plate",v:"Saffron and Smoke",c:"Meals",m:42,d:50,w:[17,21.5],l:4},
+{id:2,e:"🥐",n:"Bakery bag of 4 pastries",v:"The Flour Room",c:"Bakery",m:36,d:60,w:[19,22],l:6},
+{id:3,e:"🥗",n:"Falafel and hummus bowl",v:"Olive Lane Kitchen",c:"Vegetarian",m:34,d:50,w:[16.5,21],l:3},
+{id:4,e:"🍛",n:"Butter chicken with rice",v:"Copper Pot Curry House",c:"Meals",m:48,d:50,w:[18,22.5],l:5},
+{id:5,e:"🍰",n:"Two slices of cake",v:"Sugar Dune Patisserie",c:"Bakery",m:40,d:60,w:[20,22.5],l:2},
+{id:6,e:"🍕",n:"Margherita pizza, large",v:"Ember Slice Pizzeria",c:"Vegetarian",m:52,d:40,w:[17,21],l:3},
+{id:7,e:"🍜",n:"Chicken noodle soup set",v:"Noodle Lantern",c:"Meals",m:38,d:50,w:[17.5,21.5],l:4},
+{id:8,e:"🧆",n:"Mezze sharing box",v:"Mezze Yard",c:"Vegetarian",m:56,d:50,w:[18.5,22],l:2}];
+const $=s=>document.querySelector(s),P=m=>Math.round(m.m*(1-m.d/100));
+let T=19,cat="All",sel=null,rescued=0;
+const f=t=>{let h=Math.floor(t),mi=Math.round((t%1)*60),a=h>=12?"PM":"AM";h=h%12||12;return h+":"+String(mi).padStart(2,"0")+" "+a};
+const on=m=>T>=m.w[0]&&T<=m.w[1]&&m.l>0;
+function sky(){const p=(T-16)/6.5;$("#sky").style.setProperty("--p",p);$("#sun").setAttribute("cy",90+p*170);$("#glow").setAttribute("cy",90+p*170);$("#d1").style.transform=`translateX(${(p-.5)*-22}px)`;$("#d2").style.transform=`translateX(${(p-.5)*-46}px)`;$("#st").style.opacity=Math.max(0,(p-.5)*2);
+$("#clk").textContent=$("#clk2").textContent=f(T);$("#sl").value=$("#sl2").value=T;
+const n=M.filter(on).length;$("#left").textContent=n?n+" meals can be collected at "+f(T)+".":"Nothing is listed at "+f(T)+". Slide earlier to see tonight’s meals.";feat()}
+let fk="";function feat(){const e=$("#feat");if(!e)return;const L=M.filter(on).slice(0,3),k=L.map(m=>m.id).join();if(k==fk)return;fk=k;e.innerHTML=L.length?L.map(m=>`<div class="meal"><span class="badge">${m.d}% off</span><div class="em" aria-hidden="true">${m.e}</div><h3>${m.n}</h3><small>${m.v}, ${wk(m.id)} min walk from UOWD</small><div class="price">AED ${P(m)}<s>AED ${m.m}</s></div><small>${m.l} left, pickup until ${f(m.w[1])}</small><button class="btn" data-r="${m.id}">Reserve this meal</button></div>`).join(""):`<p>Nothing is listed at this hour. Slide the sun earlier.</p>`}
+function grid(a){const cs=["All","Meals","Bakery","Vegetarian"];$("#chips").innerHTML=cs.map(c=>`<button class="chip${c==cat?" on":""}" data-c="${c}">${c}</button>`).join("");
+const L=M.filter(m=>cat=="All"||m.c==cat).sort((a,b)=>on(b)-on(a));
+$("#grid").innerHTML=L.map((m,i)=>{const o=on(m);return `<div class="meal${o?"":" gone"}" style="--i:${i}"><span class="badge">${m.d}% off</span><div class="em" aria-hidden="true">${m.e}</div><h3>${m.n}</h3><small>${m.v}, ${wk(m.id)} min walk from UOWD</small><div class="price">AED ${P(m)}<s>AED ${m.m}</s></div><small>Pickup ${f(m.w[0])} to ${f(m.w[1])}</small><span class="tag${m.l<3&&o?" hot":""}">${o?m.l+" left":m.l<1?"Sold out":"Not at "+f(T)}</span>${o?`<button class="btn" data-r="${m.id}">Reserve this meal</button>`:""}</div>`}).join("");$("#grid").classList.toggle("in",!!a);map()}
+const C=[25.1042,55.1616],OF={1:[.0009,-.0022],2:[-.0010,.0018],3:[.0013,.0006],4:[-.0004,-.0012],5:[.0004,.0027],6:[-.0013,-.0007],7:[.0012,.0021],8:[-.0003,.0010]},LL={};for(const k in OF)LL[k]=[C[0]+OF[k][0],C[1]+OF[k][1]];
+const wk=id=>{const[a,b]=LL[id];return Math.max(1,Math.round(Math.hypot((a-C[0])*111320,(b-C[1])*111320*Math.cos(C[0]*Math.PI/180))/80))},TS="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/";let mp=null,mk="",mgo=true;
+const px=(a,o,z)=>{const n=256*2**z,s=Math.sin(a*Math.PI/180);return[(o+180)/360*n,(.5-Math.log((1+s)/(1-s))/(4*Math.PI))*n]};
+function map(){const l=$("#ml"),v=$("#mv");if(!l||!v)return;
+if(!l.children.length)l.innerHTML=M.map((m,i)=>`<button class="mb" data-pin="${m.id}" style="--i:${i}"><span class="dot"></span><span>${m.e} ${m.v}</span></button>`).join("");
+l.querySelectorAll(".mb").forEach(b=>{const m=M.find(x=>x.id==b.dataset.pin);b.classList.toggle("on",on(m));b.classList.toggle("sel",mp==m.id)});
+const W=v.clientWidth||600,H=380,z=W<560?16:17,[cx,cy]=px(C[0],C[1],z),ox=cx-W/2,oy=cy-H/2,k=W+"/"+z;
+if(k!=mk){mk=k;let t="";for(let x=Math.floor(ox/256);x<=Math.floor((ox+W)/256);x++)for(let y=Math.floor(oy/256);y<=Math.floor((oy+H)/256);y++)t+=`<img alt="" src="${TS}${z}/${y}/${x}" style="left:${x*256-ox}px;top:${y*256-oy}px" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='https://tile.openstreetmap.org/${z}/${x}/${y}.png'}else this.remove()">`;
+v.innerHTML=`<div id="tl">${t}<span class="lbl" style="left:${W/2}px;top:${H/2}px">🎓 UOWD</span></div><div id="pn"></div><span class="at">Map © Esri, OpenStreetMap contributors</span>`;setTimeout(()=>{if(!v.querySelector(".nt")&&![...v.querySelectorAll("#tl img")].some(i=>i.complete&&i.naturalWidth>0)){const n=document.createElement("div");n.className="nt";n.textContent="The street map pictures are blocked in this viewer. Open the site in a normal browser to see them.";v.appendChild(n)}},3500)}
+$("#pn").innerHTML=M.map((m,i)=>{const[a,b]=px(LL[m.id][0],LL[m.id][1],z);return `<button class="mpin${on(m)?" on":""}${mp==m.id?" sel":""}" data-pin="${m.id}" style="left:${a-ox}px;top:${b-oy}px;--i:${i}" aria-label="${m.v}"><span><i>${m.e}</i></span></button>`}).join("");
+v.classList.toggle("go",mgo);mgo=false;
+const s=M.find(m=>m.id==mp);$("#mi").innerHTML=s?`<b>${s.v}</b>: ${s.n}, AED ${P(s)}, ${wk(s.id)} min walk from UOWD. ${on(s)?s.l+" left, pickup until "+f(s.w[1])+`.<button class="btn" data-r="${s.id}">Reserve this meal</button>`:"Closed at "+f(T)+"."}`:"Pick a kitchen to see where it sits on the map."}
+function setCnt(n){const e=$("#cnt"),a=+e.textContent||0,t0=performance.now();const st=ts=>{const k=Math.min((ts-t0)/600,1);e.textContent=Math.round(a+(n-a)*k);if(k<1)requestAnimationFrame(st)};requestAnimationFrame(st)}
+function res(){const r=$("#rs");if(!sel){r.innerHTML=`<h2>Reserve a meal</h2><p>Choose a meal first, then come back here to confirm it.</p><a class="btn" href="#/meals">Browse meals</a>`;return}
+const m=sel,o=[];for(let t=Math.max(m.w[0],T);t<=m.w[1];t+=.5)o.push(t);if(!o.length)o.push(m.w[0]);
+r.innerHTML=`<h2>Reserve a meal</h2><div class="meal pick" style="max-width:480px;margin-bottom:18px"><div class="em">${m.e}</div><h3>${m.n}</h3><small>${m.v}, ${wk(m.id)} min walk from UOWD</small><div class="price">AED ${P(m)}<s>AED ${m.m}</s></div></div>
+<div class="form"><label class="f">Your name<input type="text" id="rn" autocomplete="name"></label>
+<label class="f">Pickup time<select id="rt">${o.map(t=>`<option value="${t}">${f(t)}</option>`).join("")}</select></label>
+<p class="note">Next you pay in the app. This is a demo, so no money moves.</p><button class="btn" id="rc">Continue to payment</button><p class="note" id="re" role="alert"></p></div><div id="tk" aria-live="polite"></div>`}
+function route(){const h=(location.hash.slice(1)||"/");document.querySelectorAll("section").forEach(s=>s.classList.toggle("show",s.dataset.p==h));
+document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.getAttribute("href")=="#"+h));
+const t={"/":"Baqi: pick your dinner before the day ends","/meals":"Meals","/about":"About","/reserve":"Reserve","/contact":"Contact","/pay":"Payment"};document.title=(t[h]||t["/"])+(h=="/"?"":" | Baqi");
+if(h=="/meals")grid(1);if(h=="/reserve")res();if(h=="/pay")pay();window.scrollTo(0,0)}
+document.addEventListener("input",e=>{if(e.target.id=="sl"||e.target.id=="sl2"){stop();T=+e.target.value;sky();if(location.hash=="#/meals")grid()}});
+document.addEventListener("click",e=>{const x=e.target;
+if(x.id=="seeBtn"){e.preventDefault();$("#sky").classList.add("flash");setTimeout(()=>{$("#sky").classList.remove("flash");location.hash="#/meals"},520)}
+const lk=x.closest&&x.closest("a[href^='#/']");if(lk&&x.id!="seeBtn"){e.preventDefault();location.hash=lk.getAttribute("href")}
+const pn=x.closest&&x.closest("[data-pin]");if(pn){mp=+pn.dataset.pin;map()}
+if(x.id=="pl")play();
+if(x.id=="pb"&&pend){x.disabled=true;x.classList.add("spin");x.textContent="Processing demo payment...";setTimeout(()=>{const{m,n,t}=pend,c="BQ-"+(1000+Math.floor(Math.random()*9000));m.l--;rescued++;fk="";setCnt(rescued);pend=null;$("#py").innerHTML=`<svg viewBox="0 0 52 52" width="64" height="64" aria-hidden="true"><circle class="ckc" cx="26" cy="26" r="24" fill="none" stroke="#C4572F" stroke-width="3"/><path class="ckp" d="M14 27l8 8 16-17" fill="none" stroke="#C4572F" stroke-width="4" stroke-linecap="round"/></svg><h2>Payment successful</h2><div class="ticket"><div class="note">Demo payment of AED ${P(m)}. No money moved.</div><div class="code">${c}</div><h3>${m.n}</h3><p>${m.v}<br>Collect at ${f(t)} for ${n.replace(/</g,"&lt;")}. Show this code at the counter.<br>You saved AED ${m.m-P(m)}.</p></div><p><a class="btn ghost" href="#/meals">Reserve another</a></p>`},1400)}if(x.dataset.c){cat=x.dataset.c;grid()}
+if(x.dataset.r){const c=x.closest(".meal"),id=x.dataset.r;if(c)c.classList.add("lift");x.disabled=true;setTimeout(()=>{sel=M.find(m=>m.id==id);location.hash="#/reserve"},380)}
+if(x.id=="th"){const d=document.documentElement,dk=d.dataset.theme?d.dataset.theme=="dark":matchMedia("(prefers-color-scheme:dark)").matches;d.dataset.theme=dk?"light":"dark"}
+if(x.id=="rc"){const n=$("#rn").value.trim();if(n){pend={m:sel,n:n,t:+$("#rt").value};location.hash="#/pay";return}if(!n){$("#re").textContent="Enter your name so the restaurant can find your order.";return}
+const m=sel,t=+$("#rt").value,c="BQ-"+(1000+Math.floor(Math.random()*9000));m.l--;rescued++;fk="";setCnt(rescued);
+$("#tk").innerHTML=`<div class="ticket"><p class="note">Reservation confirmed for ${n.replace(/</g,"&lt;")}</p><div class="code">${c}</div><h3>${m.n}</h3><p>${m.v}<br>Collect at ${f(t)}. Show this code at the counter.<br>You save AED ${m.m-P(m)}.</p></div>`;x.disabled=true}
+if(x.id=="cs"){$("#co").textContent=$("#cn").value.trim()&&$("#cm").value.trim()?"Thanks. Your message is noted for the demo.":"Add your name and a message first."}});
+let pend=null;
+function pay(){const r=$("#py");if(!pend){r.innerHTML=`<h2>Payment</h2><p>Reserve a meal first, then you will pay here.</p><a class="btn" href="#/meals">Browse meals</a>`;return}
+const{m,n,t}=pend,a=P(m);
+r.innerHTML=`<h2>Payment</h2><p class="note" style="max-width:520px">Demo only. No money moves and this is not a real card. Never type real card details into a class prototype.</p>
+<div class="meal" style="max-width:480px;margin-bottom:16px"><div class="em" aria-hidden="true">${m.e}</div><h3>${m.n}</h3><small>${m.v}. Collect at ${f(t)} for ${n.replace(/</g,"&lt;")}</small><div class="price">AED ${a}<s>AED ${m.m}</s></div></div>
+<div class="card"><h3>Pay by card</h3><label class="f">Name on card<input type="text" value="Sample Student" readonly></label><label class="f">Card number<input type="text" value="4242 4242 4242 4242" readonly></label><div class="row"><label class="f">Expiry<input type="text" value="12/30" readonly></label><label class="f">Code<input type="text" value="123" readonly></label></div><button class="btn" id="pb">Pay AED ${a} (demo)</button><p class="note" role="status" id="ps"></p></div>`}
+let raf=0,last=0,goal=22.5;
+function stop(){cancelAnimationFrame(raf);raf=0;$("#pl").textContent="Play the evening"}
+function tick(ts){const dt=Math.min((ts-last)/1000,.1);last=ts;T=Math.min(goal,T+dt*.55);sky();if(T>=goal){stop();return}raf=requestAnimationFrame(tick)}
+function play(g){if(raf&&g===undefined){stop();return}goal=g||22.5;if(T>=goal-.05)T=16;last=performance.now();$("#pl").textContent="Pause";cancelAnimationFrame(raf);raf=requestAnimationFrame(tick)}
+addEventListener("keydown",e=>{if(e.key=="Enter"&&e.target.dataset&&e.target.dataset.pin)e.target.dispatchEvent(new Event("click",{bubbles:true}))});
+addEventListener("resize",()=>{if(location.hash=="#/meals")map()});
+addEventListener("hashchange",route);sky();route();
+const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.add("vis");io.unobserve(en.target)}}),{threshold:.15});document.querySelectorAll(".steps li,.vals div,details,h2.sp").forEach(el=>{el.classList.add("rv");io.observe(el)});
+if(!matchMedia("(prefers-reduced-motion:reduce)").matches&&(location.hash||"#/")=="#/"){T=16;play(19)}
+</script></body></html>
